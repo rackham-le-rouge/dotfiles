@@ -1,0 +1,29 @@
+[global_config]
+  title_transmit_fg_color = "#afafaf"
+  borderless = True
+  geometry_hinting = False
+  title_transmit_bg_color = "#484848"
+  tab_position = hidden
+  inactive_color_offset = 0.6
+[keybindings]
+[profiles]
+  [[default]]
+    scrollbar_position = hidden
+    palette = "#505050:#cd3636:#00cd00:#cdcd00:#1e90ff:#ac4bac:#00cdcd:#e5e5e5:#9c9c9c:#ff4e4e:#00ff00:#ffff00:#4682b4:#da55da:#00ffff:#ffffff"
+    background_image = None
+    background_color = "#333333"
+    use_system_font = False
+    foreground_color = "#b3b3b3"
+    font = Monospace 7
+    word_chars = "-A-Za-z0-9,./?%&#:_~"
+    scrollback_infinite = True
+[layouts]
+  [[default]]
+    [[[child1]]]
+      type = Terminal
+      parent = window0
+      profile = default
+    [[[window0]]]
+      type = Window
+      parent = ""
+[plugins]
