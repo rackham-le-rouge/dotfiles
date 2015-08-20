@@ -1,0 +1,35 @@
+# Black theme by Arn <arn.alduomacil@gmail.com>
+# Morever my modifications of this theme by myself, of course <linus.belap@hotmail.fr>
+
+background				= white		black
+frame					= red		black
+window_title				= white		black
+directory				= white		black
+selected_directory			= white		black	reverse
+playlist				= white		black
+selected_playlist			= white		black	reverse
+file					= cyan		black
+selected_file				= red		black	reverse
+marked_file				= white		black	bold
+marked_selected_file			= white		black	bold,reverse
+info					= blue		black	underline
+status					= blue		black
+title					= white		black	bold
+state					= blue		black
+current_time				= white		black	bold
+time_left				= green		black	bold
+total_time				= red		black	bold
+time_total_frames			= white		black
+sound_parameters			= green		black	bold
+legend					= white		black
+disabled				= white		black
+enabled					= white		black	bold
+empty_mixer_bar				= white		black
+filled_mixer_bar			= white		black	reverse
+empty_time_bar				= white		black
+filled_time_bar				= green		black	reverse
+entry					= white		black
+entry_title				= white		black
+error					= white		black	bold,underline
+message					= white		black
+plist_time				= white		black
