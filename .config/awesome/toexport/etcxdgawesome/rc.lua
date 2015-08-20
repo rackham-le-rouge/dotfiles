@@ -8,44 +8,16 @@ require("beautiful")
 require("naughty")
 require("vicious")
 
-
 -- Load Debian menu entries
 require("debian.menu")
-
--- {{{ Error handling
--- Check if awesome encountered an error during startup and fell back to
--- another config (This code will only ever execute for the fallback config)
-if awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
-end
-
-
-
-cable=0
-mount=0
-mountmode=1
-
--- Handle runtime errors after startup
-do
-    local in_error = false
-    awesome.add_signal("debug::error", function (err)
-        -- Make sure we don't go into an endless error loop
-        if in_error then return end
-        in_error = true
-
-        naughty.notify({ preset = naughty.config.presets.critical,
-                         title = "Oops, an error happened!",
-                         text = err })
-        in_error = false
-    end)
-end
--- }}}
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
 beautiful.init("/usr/share/awesome/themes/default/theme.lua")
+
+cable=0
+mount=0
+mountmode=1
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
@@ -81,24 +53,25 @@ layouts =
 -- Define a tag table which hold all screen tags.
 --tags = {}
 --for s = 1, screen.count() do
---    -- Each screen has its own tag table.
+    -- Each screen has its own tag table.
 --    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
 --end
 -- }}}
 
 
- -- {{{ Tags
- -- Define a tag table which will hold all screen tags.
- tags = {
-   names  = { "µαιν", "σσħ", "ιcε", "µυττ", "α", "β", "γ", "δ", "ε" , "μocπ" },
-   layout = { layouts[4], layouts[4], layouts[4], layouts[4], layouts[4],
-              layouts[4], layouts[4], layouts[4], layouts[4], layouts[4], layouts[4], layouts[4], layouts[4]
- }}
- for s = 1, screen.count() do
-     -- Each screen has its own tag table.
-     tags[s] = awful.tag(tags.names, s, tags.layout)
- end
- -- }}}
+-- {{{ Tags
+-- Define a tag table which will hold all screen tags.
+tags = {
+  names  = { "µαιν", "σσħ", "ιcε", "µυττ", "⨋", "⚒", "☭", "⚔", "⚓" , "μocπ" },
+  layout = { layouts[8], layouts[8], layouts[8], layouts[8], layouts[8],
+             layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8]
+}}
+for s = 1, screen.count() do
+    -- Each screen has its own tag table.
+    tags[s] = awful.tag(tags.names, s, tags.layout)
+end
+-- }}}
+
 
 
 
@@ -108,7 +81,7 @@ layouts =
 -- Create a laucher widget and a main menu
 myawesomemenu = {
    { "manual", terminal .. " -e man awesome" },
-   { "edit config", editor_cmd .. " " .. awesome.conffile },
+   { "edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua" },
    { "restart", awesome.restart },
    { "quit", awesome.quit }
 }
@@ -124,6 +97,8 @@ mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
 -- }}}
 
 
+
+
 -- Separators
 spacer    = widget({ type = "textbox" })
 separator = widget({ type = "textbox" })
@@ -132,7 +107,15 @@ separator.text  = " "
 
 
 
+
 -- {{{ Wibox
+-- Create a textclock widget
+mytextclock = awful.widget.textclock({ align = "right" })
+
+-- Create a systray
+mysystray = widget({ type = "systray" })
+
+
 
 
 -- Create a batwidget (status chrg%)
@@ -152,6 +135,7 @@ memwidget2 = widget({ type = "textbox" })
 -- Register widget
 vicious.register(memwidget2, vicious.widgets.mem, '<span color="#FF3131">$1%</span> <span color="#489EFF">($2/$3)</span>',13)
 
+
 -- Create a cpuwidget (usage%)
 cpuicon = widget({ type = "imagebox" })
 cpuicon.image = image("/home/jerome/.config/awesome/icons/cpu.png")
@@ -160,8 +144,7 @@ cpuwidget = widget({ type = "textbox" })
 -- Register widget
 vicious.register(cpuwidget, vicious.widgets.cpu, '<span color="#489EFF">$1% $2%</span>', 1)
 
-
--- Create a netwidget (usage) {{{
+-- Create a netwidget (usage)
 dnicon = widget({ type = "imagebox" })
 upicon = widget({ type = "imagebox" })
 dnicon.image = image("/home/jerome/.config/awesome/icons/up.png")
@@ -172,16 +155,16 @@ netwidget = widget({ type = "textbox" })
 netwidget:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
                 --awesome.restart()
-		--vicious.suspend()
-		vicious.unregister(netwidget, false)
-		if cable==1 then
-			cable=0
-		        vicious.register(netwidget, vicious.widgets.net, '<span color="#FF3131">${wlan0 up_kb}k/s</span> w <span color="#33FF33">${wlan0 down_kb}k/s</span>', 1)
-		else
-			cable=1
-		        vicious.register(netwidget, vicious.widgets.net, '<span color="#FF3131">${eth0 up_kb}k/s</span> e <span color="#33FF33">${eth0 down_kb}k/s</span>', 1)
-		end
-		vicious.activate(netwidget)
+                --vicious.suspend()
+                vicious.unregister(netwidget, false)
+                if cable==1 then
+                        cable=0
+                        vicious.register(netwidget, vicious.widgets.net, '<span color="#FF3131">${wlan0 up_kb}k/s</span> w <span color="#33FF33">${wlan0 down_kb}k/s</span>', 1)
+                else
+                        cable=1
+                        vicious.register(netwidget, vicious.widgets.net, '<span color="#FF3131">${eth0 up_kb}k/s</span> e <span color="#33FF33">${eth0 down_kb}k/s</span>', 1)
+                end
+                vicious.activate(netwidget)
         end)    -- function() awful.util.spawn("xev")
 ))
 
@@ -192,49 +175,43 @@ else
         vicious.register(netwidget, vicious.widgets.net, '<span color="#FF3131">${wlan0 up_kb}k/s</span> w <span color="#33FF33">${wlan0 down_kb}k/s</span>', 1)
 end
 
---}}}
 
+-- {{ Mount function
+mountwidget = widget({ type = "textbox" })
 
+mountwidget:buttons(awful.util.table.join(
+   awful.button({ }, 1, function()
+                vicious.unregister(mountwidget, false)
 
+                if mount==1 then
+                        mount=0
+                        vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">W</span>', 1)
+                        os.execute("sudo umount /dev/sdb1")
+                elseif mountmode==1 then
+                        mount=1
+                        vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">F</span>', 1)
+                        os.execute("sudo mount -t vfat /dev/sdb1 /media/automonteur")
+                elseif mountmode==2 then
+                        mount=1
+                        vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">L</span>', 1)
+                        os.execute("sudo mount /dev/sdb1 /media/automonteur")
+                elseif mountmode==3 then
+                        mount=1
+                        vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">N</span>', 1)
+                        os.execute("sudo mount -t ntfs /dev/sdb1 /media/automonteur")
+                end
 
-    -- {{ Mount function
-    mountwidget = widget({ type = "textbox" })
-     
-    mountwidget:buttons(awful.util.table.join(
-       awful.button({ }, 1, function()
-                    vicious.unregister(mountwidget, false)
-     
-                    if mount==1 then
-                            mount=0
-                            vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">W</span>', 1)
-                            os.execute("sudo umount /dev/sdb1")
-                    elseif mountmode==1 then
-                            mount=1
-                            vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">F</span>', 1)
-                            os.execute("sudo mount -t vfat /dev/sdb1 /mnt")
-                    elseif mountmode==2 then
-                            mount=1
-                            vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">L</span>', 1)
-                            os.execute("sudo mount /dev/sdb1 /mnt")
-                    elseif mountmode==3 then
-                            mount=1
-                            vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">N</span>', 1)
-                            os.execute("sudo mount -t ntfs /dev/sdb1 /mnt")
-                    end
-     
-                    vicious.activate(mountwidget)
-            end)
-    ))
-     
-     
-    if mount==0 then
-            vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">W</span>', 1)
-    else
-            vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">M</span>', 1)
-    end
-    -- }}
-     
-     
+                vicious.activate(mountwidget)
+        end)
+))
+
+if mount==0 then
+        vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">W</span>', 1)
+else
+        vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">M</span>', 1)
+end
+-- }}
+
 
 
 
@@ -245,21 +222,23 @@ end
 --memicon.image = image(beautiful.widget_mem)
 
 -- Initialize widget
-membarwidget = awful.widget.progressbar()
+batbarwidget = awful.widget.progressbar()
 -- Progressbar properties
-membarwidget:set_width(130)
-membarwidget:set_height(20)
-membarwidget:set_vertical(false)
-membarwidget:set_background_color("#494B4F")
-membarwidget:set_border_color(nil)
-membarwidget:set_color("#AECF96")
-membarwidget:set_gradient_colors({ "#F82828" , "#9AFE2E", "#00FF00" })
+batbarwidget:set_width(120)
+batbarwidget:set_height(20)
+batbarwidget:set_vertical(false)
+batbarwidget:set_background_color("#494B4F")
+batbarwidget:set_border_color(nil)
+batbarwidget:set_color("#AECF96")
+batbarwidget:set_gradient_colors({ "#00FF00" ,  "#F82828",  "#9AFE2E"  })
 -- Register widget
 --vicious.register(memwidget, vicious.widgets.mem, "$1", 13)
-vicious.register(membarwidget, vicious.widgets.bat, "$2", 31, "BAT0")
+--- The real one
+--vicious.register(batbarwidget, vicious.widgets.bat, "$2", 31, "BAT0")
+--- The cheated one
+vicious.register(batbarwidget, vicious.widgets.mem, "$1", 13)
 
 --}}}
-
 
 
 -- {{{ CPU temperature
@@ -271,40 +250,21 @@ vicious.register(thermalwidget, vicious.widgets.thermal, '<span color="#FF3131">
 -- }}}
 
 
--- {{{ Uptime Widget
-uptimewidget = widget({ type = "textbox" })
-vicious.register(uptimewidget, vicious.widgets.uptime,
-   function (widget, args)
-    return string.format('<span color="#489EFF">%2d %02d:%02d</span>', args[1], args[2], args[3])
-   end, 61)
--- }}}
-
-
-
--- {{{ Vol Widget
-  volicon = widget({ type = "imagebox" })
-  volicon.image = image("/home/jerome/.config/awesome/icons/hp.png")
-  volumewidget = widget({ type = "textbox"})
-  vicious.register(volumewidget, vicious.widgets.volume,
-    function(widget, args)
-      local label = { ["♫"] = "♫", ["♩"] = "♩" }
-      return " " .. args[1] .. " " .. label[args[2]]
-    end, 2, "Master")
--- }}} volume widget
-
-
+volicon = widget({ type = "imagebox" })
+volicon.image = image("/home/jerome/.config/awesome/icons/hp.png")
+volumewidget = widget({ type = "textbox"})
+vicious.register(volumewidget, vicious.widgets.volume,
+  function(widget, args)
+    local label = { ["♫"] = "♫", ["♩"] = "♩" }
+    return " " .. args[1] .. " " .. label[args[2]]
+  end, 2, "Master")
 
 
 -- Create a textclock widget
-mytextclock = awful.widget.textclock({ align = "right" },'<span color="#489EFF">%d/%m | %Hh%M:%S </span>', 1)
+mytextclock2 = awful.widget.textclock({ align = "right" },'<span color="#489EFF">%d/%m | %Hh%M:%S </span>', 1)
 
 
 
-
-
-
--- Create a systray
-mysystray = widget({ type = "systray" })
 
 -- Create a wibox for each screen and add it
 mywibox = {}
@@ -322,17 +282,11 @@ mytaglist.buttons = awful.util.table.join(
 mytasklist = {}
 mytasklist.buttons = awful.util.table.join(
                      awful.button({ }, 1, function (c)
-                                              if c == client.focus then
-                                                  c.minimized = true
-                                              else
-                                                  if not c:isvisible() then
-                                                      awful.tag.viewonly(c:tags()[1])
-                                                  end
-                                                  -- This will also un-minimize
-                                                  -- the client, if needed
-                                                  client.focus = c
-                                                  c:raise()
+                                              if not c:isvisible() then
+                                                  awful.tag.viewonly(c:tags()[1])
                                               end
+                                              client.focus = c
+                                              c:raise()
                                           end),
                      awful.button({ }, 3, function ()
                                               if instance then
@@ -380,26 +334,30 @@ for s = 1, screen.count() do
             mypromptbox[s],
             layout = awful.widget.layout.horizontal.leftright
         },
-
         mylayoutbox[s],
-        mytextclock,
+        mytextclock2,
 
-          upicon, netwidget,      dnicon,         separator,
-          membarwidget, memwidget2, spacer, memicon, separator,
-          batwidget,              baticon,        separator,
-          thermalwidget,          thermicon,      separator,
---	  uptimewidget,	        
-	  volumewidget,		volicon,	separator,
-          cpuwidget,              cpuicon,        separator,
-	  mountwidget,                            separator,
+
+        upicon, netwidget,      dnicon,         separator,
+        batbarwidget, memwidget2, spacer, memicon, separator,
+        batwidget,              baticon,        separator,
+        thermalwidget,          thermicon,      separator,
+        uptimewidget,
+        volumewidget,           volicon,        separator,
+        cpuwidget,              cpuicon,        separator,
+        mountwidget,                            separator,
+
 
 
         s == 1 and mysystray or nil,
-        --mytasklist[s],
+--        mytasklist[s],
         layout = awful.widget.layout.horizontal.rightleft
     }
 end
 -- }}}
+
+
+
 
 -- {{{ Mouse bindings
 root.buttons(awful.util.table.join(
@@ -427,6 +385,50 @@ globalkeys = awful.util.table.join(
         end),
     awful.key({ modkey,           }, "w", function () mymainmenu:show({keygrabber=true}) end),
 
+    awful.key({modkey}, "o", awful.client.movetoscreen),
+
+
+    -- perso keys
+    awful.key({ modkey, "Control" }, "f", function () awful.util.spawn("firefox")                                       end),
+    awful.key({ modkey, "Control" }, "i", function () awful.util.spawn("x-terminal-emulator -x irssi")                  end),
+    awful.key({ modkey, "Control" }, "p", function () awful.util.spawn("x-terminal-emulator -x ping -i 0.2 8.8.8.8")    end),
+    awful.key({ modkey, "Control" }, "m", function () awful.util.spawn("x-terminal-emulator -x mocp -T /home/jerome/.moc/theme/perso")  end),
+    awful.key({ modkey, "Control" }, "a", function () awful.util.spawn("x-terminal-emulator -x mutt")                   end),
+    awful.key({ modkey, "Control" }, "o", function () awful.util.spawn("x-terminal-emulator -x xset dpms force off")    end),
+    awful.key({ modkey, "Control" }, "q", function () awful.util.spawn("x-terminal-emulator -x xset dpms force on")     end),
+    awful.key({ modkey, "Control" }, "l", function () awful.util.spawn("x-terminal-emulator -x slock")                  end),
+    awful.key({ modkey, "Control" }, ":", function () awful.util.spawn("x-terminal-emulator -x tudu")                   end),
+    awful.key({ modkey, "Control" }, "c", function () awful.util.spawn("x-terminal-emulator -x tty-clock -sc")          end),
+    awful.key({ modkey, "Control" }, "y", function () awful.util.spawn("x-terminal-emulator -x mpsyt")          end),
+
+    awful.key({ modkey, "Control" }, "g", function () awful.util.spawn("mocp -G")                                       end),
+    awful.key({ modkey, "Control" }, "t", function () awful.util.spawn("mocp -f")                                       end),
+    awful.key({ modkey, "Control" }, "b", function () awful.util.spawn("mocp -r")                                       end),
+
+    awful.key({ }, "XF86AudioPlay", function () awful.util.spawn("mocp -G")                                       end),
+    awful.key({ }, "XF86AudioPrev", function () awful.util.spawn("mocp -r")                                       end),
+    awful.key({ }, "XF86AudioNext", function () awful.util.spawn("mocp -f")                                       end),
+    awful.key({ }, "XF86AudioStop", function () awful.util.spawn("mocp -p")                                       end),
+
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("sudo amixer -c 0 set Master 5%+")       end),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("sudo amixer -c 0 set Master 5%-")       end),
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("sudo amixer -c 0 set Master 0%")                end),
+
+
+    awful.key({ }, "XF86Display", function () awful.util.spawn("xrandr --output VGA1 --mode 1280x1024 --right-of LVDS1")                                       end),
+
+    awful.key({ }, "XF86Back", awful.tag.viewprev),
+    awful.key({ }, "XF86Forward", awful.tag.viewnext),
+
+    awful.key({ }, "Print", function () mountmode=1                     end),
+    awful.key({ }, "Scroll_Lock", function () mountmode=2               end),
+    awful.key({ }, "Pause", function () mountmode=3                     end),
+
+    awful.key({ }, "XF86Launch1", function () awful.util.spawn("x-terminal-emulator -x /bin/bash")              end),
+
+
+
+
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end),
     awful.key({ modkey, "Shift"   }, "k", function () awful.client.swap.byidx( -1)    end),
@@ -442,6 +444,8 @@ globalkeys = awful.util.table.join(
         end),
 
     -- Standard program
+    awful.key({ modkey,            }, "F1",     function () awful.screen.focus(2) end),
+    awful.key({ modkey,            }, "F2",     function () awful.screen.focus(1) end),
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
@@ -454,56 +458,6 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1)         end),
     awful.key({ modkey,           }, "space", function () awful.layout.inc(layouts,  1) end),
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(layouts, -1) end),
-
-    awful.key({ modkey, "Control" }, "n", awful.client.restore),
-
-
-
-
-    -- perso keys
-    awful.key({ modkey, "Control" }, "f", function () awful.util.spawn("firefox")                                       end),
-    awful.key({ modkey, "Control" }, "i", function () awful.util.spawn("x-terminal-emulator -x irssi")                  end),
-    awful.key({ modkey, "Control" }, "p", function () awful.util.spawn("x-terminal-emulator -x ping -i 0.2 8.8.8.8")    end),
-    awful.key({ modkey, "Control" }, "m", function () awful.util.spawn("xterm -e mocp -T /home/jerome/.moc/theme/perso")  end),
-    awful.key({ modkey, "Control" }, "a", function () awful.util.spawn("x-terminal-emulator -x mutt")                   end),
-    awful.key({ modkey, "Control" }, "o", function () awful.util.spawn("x-terminal-emulator -x xset dpms force off")    end),
-    awful.key({ modkey, "Control" }, "l", function () awful.util.spawn("x-terminal-emulator -x slock")                  end),
-    awful.key({ modkey, "Control" }, "w", function () awful.util.spawn("wicd-gtk")                                      end),
-    awful.key({ modkey, "Control" }, "!", function () awful.util.spawn("xterm -e mc /home/jerome")        end),
-    awful.key({ modkey, "Control" }, ":", function () awful.util.spawn("xterm -e mc /media/Docs")         end),
-    awful.key({ modkey, "Control" }, "h", function () awful.util.spawn("x-terminal-emulator -x sudo halt")              end),
-    awful.key({ modkey, "Control" }, "d", function () awful.util.spawn("x-terminal-emulator -x ssh jerome@the-destiny.no-ip.org")              end),
-    awful.key({ modkey, "Control" }, "s", function () awful.util.spawn("x-terminal-emulator -x ssh jerome@arm")              end),
-
-
-    awful.key({ modkey, "Control" }, "g", function () awful.util.spawn("mocp -G")                                       end),
-    awful.key({ modkey, "Control" }, "t" , function () awful.util.spawn("mocp -f")                                      end),
-    awful.key({ modkey, "Control" }, "b", function () awful.util.spawn("mocp -r")                                       end),
-
-
-    awful.key({ }, "XF86Launch1", function () awful.util.spawn("x-terminal-emulator -x bash")              end),
-	
-
-    
-        awful.key({ }, "XF86AudioPlay", function () awful.util.spawn("mocp -G")                                       end),
-        awful.key({ }, "XF86AudioPrev", function () awful.util.spawn("mocp -r")                                       end),
-        awful.key({ }, "XF86AudioNext", function () awful.util.spawn("mocp -f")                                       end),
-        awful.key({ }, "XF86AudioStop", function () awful.util.spawn("mocp -p")                                       end),
-     
-        awful.key({ }, "XF86Back", awful.tag.viewprev),
-        awful.key({ }, "XF86Forward", awful.tag.viewnext),
-           
-        awful.key({ }, "Print", function () mountmode=1                     end),
-        awful.key({ }, "Scroll_Lock", function () mountmode=2               end),
-        awful.key({ }, "Pause", function () mountmode=3                     end),
-
-
-
-
-
-
-
-
 
     -- Prompt
     awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
@@ -525,12 +479,7 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw()                       end),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
-    awful.key({ modkey,           }, "n",
-        function (c)
-            -- The client currently has the input focus, so it cannot be
-            -- minimized, since minimized clients can't have the focus.
-            c.minimized = true
-        end),
+    awful.key({ modkey,           }, "n",      function (c) c.minimized = not c.minimized    end),
     awful.key({ modkey,           }, "m",
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
@@ -637,3 +586,11 @@ end)
 client.add_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+
+-- Démarrer le widget de network manager
+
+os.execute("killall nm-applet &")
+os.execute("nm-applet &")
+
+
