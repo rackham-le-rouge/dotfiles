@@ -3,4 +3,6 @@
 #    . $HOME/.bashrc_add
 #fi
 
+alias current='cd Codes/$(cat $HOME/currentProject)'
+
 export PS1="\[\e[00;33m\]\@\[\e[0m\]\[\e[00;37m\] \[\e[0m\]\[\e[00;31m\]\u\[\e[0m\]\[\e[00;32m\]@\[\e[0m\]\[\e[00;35m\]\h\[\e[0m\]\[\e[00;34m\]:\[\e[0m\]\[\e[01;31m\][\[\e[0m\]\[\e[00;36m\]\w\[\e[0m\]\[\e[01;31m\]]\[\e[0m\]\[\e[01;32m\]>\[\e[0m\]\[\e[00;37m\] \[\e[0m\]"
