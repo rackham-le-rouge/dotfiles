@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# it used to be -t -i and {} at the end, but this seems to be useless because i use terminator
+echo $1 | sed -e "s/:/\ +/" -e "s/:.*$//g" | xargs /usr/bin/x-terminal-emulator -e vim 2>/dev/null &
