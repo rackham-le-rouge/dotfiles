@@ -27,4 +27,14 @@ apt-get -t testing install something
 And remove all content of sources.list
 
 
+Pretty git
+----------
+
+[user]
+	name = USERNAME
+	email = USERNAME@COMPUTER
+[alias]
+  prettygraph = log --graph --name-status --pretty=format:'%Cblue%h%Creset -%d %s %Cred%an%Creset %Cgreen%cr%Creset\n' --abbrev-commit --date=short --branches
+[color]
+	ui = true
 
