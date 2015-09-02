@@ -30,6 +30,8 @@ And remove all content of sources.list
 Pretty git
 ----------
 
+Mettre ca dans le fichier .gitconfig
+
 [user]
 	name = USERNAME
 	email = USERNAME@COMPUTER
@@ -37,4 +39,14 @@ Pretty git
   prettygraph = log --graph --name-status --pretty=format:'%Cblue%h%Creset -%d %s %Cred%an%Creset %Cgreen%cr%Creset\n' --abbrev-commit --date=short --branches
 [color]
 	ui = true
+
+
+
+bashrc add
+----------
+
+if [ -f $HOME/.bashrc_add ]; then
+    . $HOME/.bashrc_add
+fi
+
 
