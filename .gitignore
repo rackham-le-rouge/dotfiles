@@ -1,0 +1,17 @@
+# Ignore everything
+*
+
+# But not these files...
+!.vimrc
+!.vim
+!.bashrc_add
+!.gitignore
+!.config/awesome/
+!.config/mc
+!.config/terminator/config
+!.moc/
+!.nanorc
+!README.md
+!currentProject
+!tips
+!scripts/
