@@ -18,6 +18,7 @@ beautiful.init("/usr/share/awesome/themes/default/theme.lua")
 cable=0
 mount=0
 mountmode=1
+brightness=nil 
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
@@ -50,21 +51,11 @@ layouts =
 -- }}}
 
 -- {{{ Tags
--- Define a tag table which hold all screen tags.
---tags = {}
---for s = 1, screen.count() do
-    -- Each screen has its own tag table.
---    tags[s] = awful.tag({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, s, layouts[1])
---end
--- }}}
-
-
--- {{{ Tags
 -- Define a tag table which will hold all screen tags.
 tags = {
-  names  = { "µαιν", "σσħ", "ιcε", "µυττ", "⨋", "⚒", "☭", "⚔", "⚓" , "μocπ" },
+  names  = { "µαιν", "σσħ", "ιcε", "µυττ", "⚒", "☭", "⚔", "⚓" , "μocπ" },
   layout = { layouts[8], layouts[8], layouts[8], layouts[8], layouts[8],
-             layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8]
+             layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8], layouts[8]
 }}
 for s = 1, screen.count() do
     -- Each screen has its own tag table.
@@ -109,8 +100,6 @@ separator.text  = " "
 
 
 -- {{{ Wibox
--- Create a textclock widget
-mytextclock = awful.widget.textclock({ align = "right" })
 
 -- Create a systray
 mysystray = widget({ type = "systray" })
@@ -123,8 +112,14 @@ baticon = widget({ type = "imagebox" })
 baticon.image = image("/home/jerome/.config/awesome/icons/bat.png")
 -- Initialize widget
 batwidget = widget({ type = "textbox" })
+batwidget2 = widget({ type = "textbox" })
 -- Register widget
 vicious.register(batwidget, vicious.widgets.bat, '<span color="#489EFF">$1$2%</span>', 31, "BAT0")
+vicious.register(batwidget2, vicious.widgets.bat, '<span color="#489EFF">$1$2%</span>', 31, "BAT1")
+
+
+
+
 
 
 -- Create a memwidget (usage$ usedMB/TotalMB)
@@ -136,13 +131,59 @@ memwidget2 = widget({ type = "textbox" })
 vicious.register(memwidget2, vicious.widgets.mem, '<span color="#FF3131">$1%</span> <span color="#489EFF">($2/$3)</span>',13)
 
 
+
+
+
 -- Create a cpuwidget (usage%)
 cpuicon = widget({ type = "imagebox" })
 cpuicon.image = image("/home/jerome/.config/awesome/icons/cpu.png")
 -- Initialize widget
 cpuwidget = widget({ type = "textbox" })
 -- Register widget
-vicious.register(cpuwidget, vicious.widgets.cpu, '<span color="#489EFF">$1% $2%</span>', 1)
+vicious.register(cpuwidget, vicious.widgets.cpu, '<span color="#489EFF">$1% $2% $3% $4%</span>', 1)
+
+
+
+
+
+
+-- Create a LED widget, coz new computers haven't LED on keyboards to say if there is Caps or num lock
+-- Initialize widget  && We add a brightness report widget. /sys is on SSD thus we don't care to read
+-- no spin up issue. Too much read is dangerous, but here, we are not in this kind of usage.
+mycaps = widget({ type = "textbox", align = "right" })
+os.execute("/usr/bin/xsetcaps caps > /tmp/.capsstate &")
+
+awful.hooks.timer.register(1, function ()
+    -- Caps lock
+    local f = io.open("/tmp/.capsstate") 
+    local capsstate = nil
+
+    capsstate = f:read() -- read output of command
+    f:close()
+
+    -- Brightness
+    local f = io.open("/sys/class/backlight/intel_backlight/brightness") 
+    brightness = nil
+
+    brightness = f:read() -- read output of command
+    f:close()
+
+
+    if capsstate ~= "0" then
+        mycaps.text = '<span color="#FF3131">|⇑|</span> ' .. brightness .. ' '
+    else
+        mycaps.text = '<span color="#FF3131">| |</span> ' .. brightness .. ' '
+    end
+
+    os.execute("/usr/bin/xsetcaps caps > /tmp/.capsstate &")
+end)
+
+
+
+
+
+
+
 
 -- Create a netwidget (usage)
 dnicon = widget({ type = "imagebox" })
@@ -186,19 +227,19 @@ mountwidget:buttons(awful.util.table.join(
                 if mount==1 then
                         mount=0
                         vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">W</span>', 1)
-                        os.execute("sudo umount /dev/sdb1")
+                        os.execute("sudo umount /dev/sdc1")
                 elseif mountmode==1 then
                         mount=1
                         vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">F</span>', 1)
-                        os.execute("sudo mount -t vfat /dev/sdb1 /media/automonteur")
+                        os.execute("sudo mount -t vfat /dev/sdc1 /media/automonteur")
                 elseif mountmode==2 then
                         mount=1
                         vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">L</span>', 1)
-                        os.execute("sudo mount /dev/sdb1 /media/automonteur")
+                        os.execute("sudo mount /dev/sdc1 /media/automonteur")
                 elseif mountmode==3 then
                         mount=1
                         vicious.register(mountwidget, vicious.widgets.net, '<span color="#FF3131">N</span>', 1)
-                        os.execute("sudo mount -t ntfs /dev/sdb1 /media/automonteur")
+                        os.execute("sudo mount -t ntfs /dev/sdc1 /media/automonteur")
                 end
 
                 vicious.activate(mountwidget)
@@ -215,13 +256,9 @@ end
 
 
 
--- {{{ Memory usage
+-- {{{ Battery usage
 
--- icon
---memicon = widget({ type = "imagebox" })
---memicon.image = image(beautiful.widget_mem)
-
--- Initialize widget
+-- Initialize widget for the first battery
 batbarwidget = awful.widget.progressbar()
 -- Progressbar properties
 batbarwidget:set_width(120)
@@ -230,13 +267,22 @@ batbarwidget:set_vertical(false)
 batbarwidget:set_background_color("#494B4F")
 batbarwidget:set_border_color(nil)
 batbarwidget:set_color("#AECF96")
-batbarwidget:set_gradient_colors({ "#00FF00" ,  "#F82828",  "#9AFE2E"  })
+batbarwidget:set_gradient_colors({ "#F82828" ,  "#00FF00",  "#9AFE2E"  })
 -- Register widget
---vicious.register(memwidget, vicious.widgets.mem, "$1", 13)
---- The real one
---vicious.register(batbarwidget, vicious.widgets.bat, "$2", 31, "BAT0")
---- The cheated one
-vicious.register(batbarwidget, vicious.widgets.mem, "$1", 13)
+vicious.register(batbarwidget, vicious.widgets.bat, "$2", 31, "BAT1")
+
+
+-- Initialize widget for the second battery
+batbarwidget2 = awful.widget.progressbar()
+-- Progressbar properties
+batbarwidget2:set_width(120)
+batbarwidget2:set_height(20)
+batbarwidget2:set_vertical(false)
+batbarwidget2:set_background_color("#494B4F")
+batbarwidget2:set_border_color(nil)
+batbarwidget2:set_color("#AECF96")
+batbarwidget2:set_gradient_colors({ "#F82828" ,  "#00FF00",  "#9AFE2E"  })
+vicious.register(batbarwidget2, vicious.widgets.bat, "$2", 31, "BAT0")
 
 --}}}
 
@@ -245,7 +291,6 @@ vicious.register(batbarwidget, vicious.widgets.mem, "$1", 13)
 thermicon = widget({ type = "imagebox" })
 thermicon.image = image("/home/jerome/.config/awesome/icons/therm.png")
 thermalwidget  = widget({ type = "textbox" })
---vicious.register(thermalwidget, vicious.widgets.thermal, "$1", 20)
 vicious.register(thermalwidget, vicious.widgets.thermal, '<span color="#FF3131">$1°C</span>', 20, "thermal_zone0" )
 -- }}}
 
@@ -335,12 +380,12 @@ for s = 1, screen.count() do
             layout = awful.widget.layout.horizontal.leftright
         },
         mylayoutbox[s],
-        mytextclock2,
+        mytextclock2,           separator,
 
-
+        mycaps,                 separator,
         upicon, netwidget,      dnicon,         separator,
-        batbarwidget, memwidget2, spacer, memicon, separator,
-        batwidget,              baticon,        separator,
+        batbarwidget, batbarwidget2, memwidget2, spacer, memicon, separator,
+        batwidget, batwidget2,   baticon,        separator,
         thermalwidget,          thermicon,      separator,
         uptimewidget,
         volumewidget,           volicon,        separator,
@@ -390,7 +435,6 @@ globalkeys = awful.util.table.join(
 
     -- perso keys
     awful.key({ modkey, "Control" }, "f", function () awful.util.spawn("firefox")                                       end),
-    awful.key({ modkey, "Control" }, "i", function () awful.util.spawn("x-terminal-emulator -x irssi")                  end),
     awful.key({ modkey, "Control" }, "p", function () awful.util.spawn("x-terminal-emulator -x ping -i 0.2 8.8.8.8")    end),
     awful.key({ modkey, "Control" }, "m", function () awful.util.spawn("x-terminal-emulator -x mocp -T /home/jerome/.moc/theme/perso")  end),
     awful.key({ modkey, "Control" }, "a", function () awful.util.spawn("x-terminal-emulator -x mutt")                   end),
@@ -414,11 +458,18 @@ globalkeys = awful.util.table.join(
     awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("sudo amixer -c 0 set Master 5%-")       end),
     awful.key({ }, "XF86AudioMute", function () awful.util.spawn("sudo amixer -c 0 set Master 0%")                end),
 
-
-    awful.key({ }, "XF86Display", function () awful.util.spawn("xrandr --output VGA1 --mode 1280x1024 --right-of LVDS1")                                       end),
-
     awful.key({ }, "XF86Back", awful.tag.viewprev),
     awful.key({ }, "XF86Forward", awful.tag.viewnext),
+
+    awful.key({ }, "XF86MonBrightnessDown", function () awful.util.spawn("xbacklight -dec 5")                end),
+    awful.key({ }, "XF86MonBrightnessUp", function () awful.util.spawn("xbacklight -inc 5")                end),
+--    awful.key({ }, "XF86MonBrightnessUp", function ()
+--        if brightness  > 50 then
+--            awful.util.spawn("xbacklight -inc 5")
+--        elseif brightness  > 25 10 then
+--            
+--        end
+--        end),
 
     awful.key({ }, "Print", function () mountmode=1                     end),
     awful.key({ }, "Scroll_Lock", function () mountmode=2               end),

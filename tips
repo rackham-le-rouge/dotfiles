@@ -56,7 +56,8 @@ fi
 visudo
 ------
 
-%user ALL = NOPASSWD: /usr/bin/alsamixer,/bin/mount,/bin/umount,/sbin/ifconfig,/sbin/modprobe,/sbin/brctl
+%myusername ALL = NOPASSWD: /usr/bin/alsamixer,/bin/mount,/bin/umount,/sbin/ifconfig,/usr/bin/xrandr,/usr/bin/amixer
+
 
 xrandr
 ------
@@ -65,3 +66,15 @@ LISE with VGA left
 sudo xrandr --output VGA1 --auto
 sudo xrandr --output VGA1 --left-of LVDS1
 
+
+suspend
+-------
+
+Enable or disable suspend on ne systems :
+
+sudo systemctl unmask sleep.target suspend.target hibernate.target hybrid-sleep.target
+
+
+trackpoint driver
+-----------------
+./debian.kernel.3.16/usr/src/linux-source-3.16/drivers/input/mouse/trackpoint.c
